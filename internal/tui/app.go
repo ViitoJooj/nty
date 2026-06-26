@@ -14,6 +14,10 @@ func NewApp() App {
 	return App{screen: screens.NewConfigMenuScreen()}
 }
 
+func NewAppWith(screen screens.Screen) App {
+	return App{screen: screen}
+}
+
 func (a App) Init() tea.Cmd {
 	return a.screen.Init()
 }
