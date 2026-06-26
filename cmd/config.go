@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 
-	tea "charm.land/bubbletea/v2"
 	"github.com/ViitoJooj/nty/internal/tui"
 	"github.com/spf13/cobra"
 )
@@ -11,54 +10,23 @@ import (
 var configCmd = &cobra.Command{
 	Use: "config",
 	Run: func(cmd *cobra.Command, args []string) {
-		langFlag, err := cmd.Flags().GetBool("lang")
-		if err != nil {
-			fmt.Println(err)
-		}
+		lang, _ := cmd.Flags().GetBool("lang")
+		containerEngine, _ := cmd.Flags().GetBool("container-engine")
+		ai, _ := cmd.Flags().GetBool("ai")
 
-		githubFlag, err := cmd.Flags().GetBool("github")
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		containerEngineFlag, err := cmd.Flags().GetBool("container-engine")
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		aiFlag, err := cmd.Flags().GetBool("ai")
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		// config --github
-		// this if will run the github config
-		// the user need enter the github username and email
-		// used for nty commit and push to github
-		if githubFlag {
-			application := tea.NewProgram(tui.NewApp())
-
-			_, err = application.Run()
-			if err != nil {
-				fmt.Println(err)
-			}
-		}
-
-		if langFlag {
+		// Placeholders até cada configuração ter sua tela.
+		if lang {
 			fmt.Println("Lang")
 		}
-
-		if containerEngineFlag {
+		if containerEngine {
 			fmt.Println("container engine")
 		}
-
-		if aiFlag {
+		if ai {
 			fmt.Println("ai")
 		}
 
-		application := tea.NewProgram(tui.NewApp())
-		_, err = application.Run()
-		if err != nil {
+		// --github abre o TUI; sem flags também cai no menu de config.
+		if err := tui.Run(); err != nil {
 			fmt.Println(err)
 		}
 	},
