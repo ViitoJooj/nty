@@ -21,17 +21,35 @@ var commitCmd = &cobra.Command{
 			return
 		}
 
-		rawBranch, err := services.BranchName(files)
+		current, err := services.CurrentBranch()
 		if err != nil {
-			fmt.Println("erro ao gerar nome da branch:", err)
+			fmt.Println("erro ao ler branch atual:", err)
 			return
 		}
-		branch := services.SanitizeBranch(rawBranch)
-		if err := services.CreateBranch(branch); err != nil {
-			fmt.Println("erro ao criar branch:", err)
-			return
+
+		var branch string
+		if !services.IsDefaultBranch(current) {
+			branch = current
+			fmt.Printf("branch (reaproveitada): %s\n", branch)
+		} else {
+			if deleted, err := services.CleanMergedBranches(); err != nil {
+				fmt.Println("aviso ao limpar branches mergiadas:", err)
+			} else if len(deleted) > 0 {
+				fmt.Printf("branches mergiadas removidas: %v\n", deleted)
+			}
+
+			rawBranch, err := services.BranchName(files)
+			if err != nil {
+				fmt.Println("erro ao gerar nome da branch:", err)
+				return
+			}
+			branch = services.SanitizeBranch(rawBranch)
+			if err := services.CreateBranch(branch); err != nil {
+				fmt.Println("erro ao criar branch:", err)
+				return
+			}
+			fmt.Printf("branch: %s\n", branch)
 		}
-		fmt.Printf("branch: %s\n", branch)
 
 		for _, f := range files {
 			diff, err := services.StageAndDiff(f)
