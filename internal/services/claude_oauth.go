@@ -1,6 +1,3 @@
-// Package oauth implements the Claude (Anthropic) subscription OAuth flow,
-// the same PKCE flow Claude Code uses. No third-party app registration exists,
-// so the public Claude Code client_id is reused for personal login.
 package services
 
 import (
@@ -24,20 +21,17 @@ const (
 	scopes       = "org:create_api_key user:profile user:inference"
 )
 
-// PKCE holds the verifier/state needed to start and finish a login.
 type PKCE struct {
 	Verifier string
 	State    string
 }
 
-// Tokens is the result of a successful exchange.
 type Tokens struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 	ExpiresIn    int    `json:"expires_in"`
 }
 
-// ExpiresAt is the unix second the access token stops being valid.
 func (t Tokens) ExpiresAt() int64 {
 	return time.Now().Unix() + int64(t.ExpiresIn)
 }
@@ -50,8 +44,6 @@ func randURLSafe(n int) (string, error) {
 	return base64.RawURLEncoding.EncodeToString(b), nil
 }
 
-// Start builds the authorize URL the user opens in a browser, and returns the
-// PKCE state needed to later exchange the pasted code.
 func Start() (loginURL string, p PKCE, err error) {
 	verifier, err := randURLSafe(32)
 	if err != nil {
@@ -79,11 +71,9 @@ func Start() (loginURL string, p PKCE, err error) {
 	return authorizeURL + "?" + q.Encode(), PKCE{Verifier: verifier, State: state}, nil
 }
 
-// Exchange trades the pasted code (format "code#state") for tokens.
 func Exchange(pasted string, p PKCE) (Tokens, error) {
 	code, state, _ := strings.Cut(strings.TrimSpace(pasted), "#")
 	if state == "" {
-		// Some callbacks omit the #state suffix; fall back to our own.
 		state = p.State
 	}
 
