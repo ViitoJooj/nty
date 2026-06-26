@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	configOptions = []string{"GitHub account", "Container engine", "AI integration"}
+	configOptions = []string{"Register AI credentials", "Language"}
 	selectedStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#9e0000")).Background(lipgloss.Color("#ffffff")).Bold(true)
 )
 
@@ -42,9 +42,9 @@ func (screen *ConfigMenuScreen) Update(msg tea.Msg) (Screen, tea.Cmd) {
 	case "enter":
 		switch screen.cursor {
 		case 0:
-			return NewGithubUsernameScreen(), nil
-		case 2:
 			return NewClaudeLoginScreen(), nil
+		case 1:
+			return NewLanguageScreen(), nil
 		}
 	}
 
