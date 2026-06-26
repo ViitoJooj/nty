@@ -42,6 +42,39 @@ func CreateBranch(name string) error {
 	return err
 }
 
+func CurrentBranch() (string, error) {
+	out, err := run("rev-parse", "--abbrev-ref", "HEAD")
+	return strings.TrimSpace(out), err
+}
+
+func IsDefaultBranch(name string) bool {
+	switch name {
+	case "main", "master", "develop", "HEAD":
+		return true
+	}
+	return false
+}
+
+func CleanMergedBranches() ([]string, error) {
+	out, err := run("branch", "--merged")
+	if err != nil {
+		return nil, err
+	}
+
+	var deleted []string
+	for _, line := range strings.Split(out, "\n") {
+		name := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(line), "* "))
+		if name == "" || IsDefaultBranch(name) {
+			continue
+		}
+		if _, err := run("branch", "-d", name); err != nil {
+			return deleted, err
+		}
+		deleted = append(deleted, name)
+	}
+	return deleted, nil
+}
+
 func StageAndDiff(file string) (string, error) {
 	if _, err := run("add", "--", file); err != nil {
 		return "", err
