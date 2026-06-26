@@ -17,15 +17,11 @@ func configDir() (string, error) {
 }
 
 type Config struct {
-	Lang                   string
-	GithubUser             string
-	GithubEmail            string
-	CreateBranchForDeploy  bool
-	UseAiForCommit         bool
-	DefaultContainerEngine string
-	ClaudeAccessToken      string
-	ClaudeRefreshToken     string
-	ClaudeExpiresAt        int64
+	Lang                  string
+	CreateBranchForDeploy bool
+	ClaudeAccessToken     string
+	ClaudeRefreshToken    string
+	ClaudeExpiresAt       int64
 }
 
 func Load() (*Config, error) {
@@ -41,15 +37,11 @@ func Load() (*Config, error) {
 	_ = viper.ReadInConfig()
 
 	config := &Config{
-		Lang:                   viper.GetString("lang"),
-		GithubUser:             viper.GetString("github_user"),
-		GithubEmail:            viper.GetString("github_email"),
-		CreateBranchForDeploy:  viper.GetBool("create_branch_for_deploy"),
-		UseAiForCommit:         viper.GetBool("use_ai_for_commmit"),
-		DefaultContainerEngine: viper.GetString("container_engine"),
-		ClaudeAccessToken:      viper.GetString("claude_access_token"),
-		ClaudeRefreshToken:     viper.GetString("claude_refresh_token"),
-		ClaudeExpiresAt:        viper.GetInt64("claude_expires_at"),
+		Lang:                  viper.GetString("lang"),
+		CreateBranchForDeploy: viper.GetBool("create_branch_for_deploy"),
+		ClaudeAccessToken:     viper.GetString("claude_access_token"),
+		ClaudeRefreshToken:    viper.GetString("claude_refresh_token"),
+		ClaudeExpiresAt:       viper.GetInt64("claude_expires_at"),
 	}
 
 	return config, nil
