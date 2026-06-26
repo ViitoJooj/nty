@@ -82,9 +82,19 @@ func complete(system, user string, maxTokens int) (string, error) {
 }
 
 func CommitMessage(file, diff string) (string, error) {
-	system := "Você escreve mensagens de commit curtas e objetivas em português, estilo conventional commits quando aplicável. Responda APENAS com a mensagem, uma linha, sem aspas e sem explicação."
-	user := fmt.Sprintf("Arquivo: %s\n\nDiff:\n%s", file, diff)
+	system := fmt.Sprintf("You write short, objective git commit messages in %s, using conventional commits style when applicable. Reply with ONLY the message, one line, no quotes and no explanation.", commitLanguage())
+	user := fmt.Sprintf("File: %s\n\nDiff:\n%s", file, diff)
 	return complete(system, user, 100)
+}
+
+// commitLanguage maps the saved lang setting to a language name for the prompt.
+// Defaults to English when unset/unknown.
+func commitLanguage() string {
+	cfg, err := config.Load()
+	if err == nil && cfg.Lang == "pt" {
+		return "Portuguese"
+	}
+	return "English"
 }
 
 func BranchName(files []string) (string, error) {
