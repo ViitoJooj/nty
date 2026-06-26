@@ -14,10 +14,15 @@ var configCmd = &cobra.Command{
 		containerEngine, _ := cmd.Flags().GetBool("container-engine")
 		ai, _ := cmd.Flags().GetBool("ai")
 
-		// Placeholders até cada configuração ter sua tela.
+		// --lang abre direto a tela de idioma.
 		if lang {
-			fmt.Println("Lang")
+			if err := tui.RunLang(); err != nil {
+				fmt.Println(err)
+			}
+			return
 		}
+
+		// Placeholders até cada configuração ter sua tela.
 		if containerEngine {
 			fmt.Println("container engine")
 		}
