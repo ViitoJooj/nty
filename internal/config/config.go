@@ -67,6 +67,11 @@ func write() error {
 	return viper.WriteConfig()
 }
 
+func SaveLang(lang string) error {
+	viper.Set("lang", lang)
+	return write()
+}
+
 func SaveGithub(user, email string) error {
 	viper.Set("github_user", user)
 	viper.Set("github_email", email)
