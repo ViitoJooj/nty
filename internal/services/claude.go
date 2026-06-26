@@ -102,3 +102,37 @@ func BranchName(files []string) (string, error) {
 	user := "Arquivos alterados:\n" + strings.Join(files, "\n")
 	return complete(system, user, 30)
 }
+
+// ClassifyArtifact decides whether the project ships a runnable binary or a
+// library, from its manifests and file tree. Language-independent: the model
+// generalizes instead of us coding one rule per ecosystem.
+func ClassifyArtifact(manifests, fileTree string) (string, error) {
+	system := "You classify a software project as either a runnable BINARY (CLI/app/service producing an executable) or a LIBRARY (imported by other code). Use the manifests and file tree. Reply with ONLY one word: binary or library."
+	user := fmt.Sprintf("Manifests:\n%s\n\nFile tree:\n%s", manifests, fileTree)
+	out, err := complete(system, user, 5)
+	if err != nil {
+		return "", err
+	}
+	out = strings.ToLower(strings.TrimSpace(out))
+	if strings.Contains(out, "binary") {
+		return "binary", nil
+	}
+	return "library", nil
+}
+
+// ReleaseNotes picks the next semver version (AI bump from the commits) and
+// writes the release notes. Returns the first line (version) and the body.
+func ReleaseNotes(lastTag, commits string) (version, notes string, err error) {
+	system := fmt.Sprintf("You are a release manager. Given the last git tag and the commits since it, decide the next semantic version (bump major/minor/patch from the changes) and write clean release notes in %s. Respond EXACTLY in this format: first line is only the version like v1.2.3, then a blank line, then the release notes as markdown bullet points. No other text.", commitLanguage())
+	user := fmt.Sprintf("Last tag: %s\n\nCommits since:\n%s", lastTag, commits)
+	out, err := complete(system, user, 600)
+	if err != nil {
+		return "", "", err
+	}
+	parts := strings.SplitN(strings.TrimSpace(out), "\n", 2)
+	version = strings.TrimSpace(parts[0])
+	if len(parts) > 1 {
+		notes = strings.TrimSpace(parts[1])
+	}
+	return version, notes, nil
+}
