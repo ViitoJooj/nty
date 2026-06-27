@@ -56,19 +56,26 @@ func IsDefaultBranch(name string) bool {
 }
 
 func CleanMergedBranches() ([]string, error) {
-	out, err := run("branch", "--merged")
+	if _, err := run("fetch", "--prune"); err != nil {
+		return nil, err
+	}
+
+	out, err := run("for-each-ref", "--format=%(refname:short) %(upstream:track)", "refs/heads")
 	if err != nil {
 		return nil, err
 	}
 
 	var deleted []string
 	for _, line := range strings.Split(out, "\n") {
-		name := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(line), "* "))
+		name, track, _ := strings.Cut(strings.TrimSpace(line), " ")
 		if name == "" || IsDefaultBranch(name) {
 			continue
 		}
+		if !strings.Contains(track, "[gone]") {
+			continue
+		}
 		if _, err := run("branch", "-d", name); err != nil {
-			return deleted, err
+			continue
 		}
 		deleted = append(deleted, name)
 	}
@@ -92,7 +99,6 @@ func Push(branch string) error {
 	return err
 }
 
-// LastTag returns the most recent tag, or "v0.0.0" when the repo has none.
 func LastTag() string {
 	out, err := run("describe", "--tags", "--abbrev=0")
 	if err != nil {
@@ -101,18 +107,14 @@ func LastTag() string {
 	return strings.TrimSpace(out)
 }
 
-// CommitsSince returns the subject lines of commits after tag (or all commits
-// when tag does not exist).
 func CommitsSince(tag string) string {
 	out, err := run("log", tag+"..HEAD", "--pretty=format:%s")
 	if err != nil {
-		// tag absent: fall back to whole history.
 		out, _ = run("log", "--pretty=format:%s")
 	}
 	return strings.TrimSpace(out)
 }
 
-// PushTags pushes local tags to origin.
 func PushTags() error {
 	_, err := run("push", "--tags")
 	return err
